@@ -1,6 +1,6 @@
 #!/usr/bin/env python3.6
 
-'''
+"""
 I take 2 or more multi-fasta files and I concatenate them together according to the sequence order appearing in the files.
 First come, first served.
 I replace missing nucleotides with "-".
@@ -8,7 +8,7 @@ I print out concatenated multifasta.
 
 Andrea Del Cortona
 2022/10/01
-'''
+"""
 
 
 
@@ -28,7 +28,7 @@ from itertools import accumulate
 # INPUT PARSER
 
 parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter,
-	description = '''
+	description = """
 
 	==================================================================
 	I take 2 or more multi-fasta files and I concatenate them together according to the sequence order appearing in the files.
@@ -42,13 +42,13 @@ parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter
 	python3.8 multi_fasta_concat.py --infiles "fasta1.fa,fasta2.fa,fasta3.fa..." 
 
 	==================================================================
-	''',
-	epilog = '''
+	""",
+	epilog = """
 	__________________________________________________________________
 			 Andrea Del Cortona - andrea.delcortona@gmail.com
 						   2022-10-01
 	__________________________________________________________________
-	''')
+	""")
 
 parser.add_argument("--infiles", metavar = "INFILES", action = "store",
 	type = str, dest = "INFILES", required = True,
@@ -80,6 +80,42 @@ def main():
 		"occupancy"  : {},       # [0, 1] presence of sequences for each multifasta alignment
 		"sequences"  : {}        # placeholder for multifasta sequences
 	}
+
+	# import files and process them
+	seq_DB = concatenate_multifasta(seq_DB, file_list)
+
+	# print matrix of sequence occupancies to standard error
+	for key, value in seq_DB["occupancy"].items():
+		sys.stderr.write("\t".join([key, "\t".join(value), "\n"]))
+
+	# print concatenated multifasta alignment to standard output
+	for sequence in sorted(seq_DB["seq_list"]):
+		print(">" + sequence)
+		print(seq_DB["sequences"][sequence])
+
+		
+
+# import and concatenate the multifasta alignment
+def concatenate_multifasta(
+		seq_DB,
+		file_list,
+	):
+
+	"""
+	I take the seq_DB and file_list.
+	I iterate multifasta alignment.
+	For each alignment, I check if the fasta sequence was already encountered or not.
+	New fasta sequences are added to list of fasta sequences and occupancy matrix.
+	I add the residues to the growing fasta sequences.
+	I add trailing or starting missing residues where necessary ("-").
+	I return an updated seq_DB.
+
+		---
+	seq_DB : dict
+		seq_DB database with placeholders for list of fasta sequences, alignment length, occupancy matrix and final fasta sequence
+	file_list : list
+		list of fasta alignment to be concatenated
+	"""		
 
 	# iterate fasta files and import them
 	for file in file_list:
@@ -129,16 +165,10 @@ def main():
 				if len(seq_DB["occupancy"][sequence]) < longest_sequence:
 					seq_DB["occupancy"][sequence].append("0")
 					seq_DB["sequences"][sequence] += "-" * seq_DB["seq_length"][-1]
-
-	# print matrix of sequence occupancies to standard error
-	for key, value in seq_DB["occupancy"].items():
-		sys.stderr.write("\t".join([key, "\t".join(value), "\n"]))
-
-	# print concatenated multifasta alignment to standard output
-	for sequence in sorted(seq_DB["seq_list"]):
-		print(">" + sequence)
-		print(seq_DB["sequences"][sequence])
-
+					
+	# return updated sequence database
+	return(seq_DB)
+	
 
 
 #------------------------------------------------------------------#
