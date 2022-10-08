@@ -52,7 +52,7 @@ parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter
 
 parser.add_argument("--infiles", metavar = "INFILES", action = "store",
 	type = str, dest = "INFILES", required = True,
-	help = 'List of multi-fasta to be concatenated, comma separated.')
+	help = "List of multi-fasta to be concatenated, comma separated.")
 
 args = parser.parse_args()
 
@@ -63,12 +63,12 @@ args = parser.parse_args()
 
 # main function
 def main():
-	'''
+	"""
 	I take 2 or more multi-fasta files and I concatenate them together according to the sequence order appearing in the files.
 	First come, first served.
 	I replace missing nucleotides with "-".
 	I print out concatenated multifasta.
-	'''
+	"""
 
 	# create file lists
 	*file_list, = args.INFILES.split(",")
