@@ -70,9 +70,6 @@ def main():
 	I print out concatenated multifasta.
 	"""
 
-	# create file lists
-	*file_list, = args.INFILES.split(",")
-
 	# create sequences database
 	seq_DB = {
 		"seq_list"   : [],       # list of unqiue fasta sequence identified
@@ -80,6 +77,9 @@ def main():
 		"occupancy"  : {},       # [0, 1] presence of sequences for each multifasta alignment
 		"sequences"  : {}        # placeholder for multifasta sequences
 	}
+
+	# create file lists
+	*file_list, = args.INFILES.split(",")
 
 	# import files and process them
 	seq_DB = concatenate_multifasta(seq_DB, file_list)
