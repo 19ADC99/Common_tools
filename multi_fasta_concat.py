@@ -35,11 +35,12 @@ parser = argparse.ArgumentParser(formatter_class = argparse.RawTextHelpFormatter
 	First come, first served.
 	I replace missing nucleotides with "-".
 	I print out concatenated multifasta.
+	I redirect an occupancy matrix to stardard error.
 
 	__________________________________________________________________
 
 	Usage:
-	python3.8 multi_fasta_concat.py --infiles "fasta1.fa,fasta2.fa,fasta3.fa..." 
+	python3.8 multi_fasta_concat.py --infiles "fasta1.fa,fasta2.fa,fasta3.fa..." 1> concat_multifasta.fa 2> sequence_occupancy.tab
 
 	==================================================================
 	""",
@@ -68,11 +69,12 @@ def main():
 	First come, first served.
 	I replace missing nucleotides with "-".
 	I print out concatenated multifasta.
+	I redirect an occupancy matrix to stardard error.
 	"""
 
 	# create sequences database
 	seq_DB = {
-		"seq_list"   : [],       # list of unqiue fasta sequence identified
+		"seq_list"   : [],       # list of unique fasta sequence identified
 		"seq_length" : [],       # length of alignments in residues [156788, 2222, 3435]
 		"occupancy"  : {},       # [0, 1] presence of sequences for each multifasta alignment
 		"sequences"  : {}        # placeholder for multifasta sequences
@@ -85,8 +87,11 @@ def main():
 	seq_DB = concatenate_multifasta(seq_DB, file_list)
 
 	# print matrix of sequence occupancies to standard error
+	sys.stderr.write("\t".join(["# Sequences", "\t".join(file_list)]))
+	sys.stderr.write("\n")
 	for key, value in seq_DB["occupancy"].items():
-		sys.stderr.write("\t".join([key, "\t".join(value), "\n"]))
+		sys.stderr.write("\t".join([key, "\t".join(value)]))
+		sys.stderr.write("\n")
 
 	# print concatenated multifasta alignment to standard output
 	for sequence in sorted(seq_DB["seq_list"]):
